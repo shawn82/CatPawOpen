@@ -91,17 +91,7 @@ export default {
     ]
   },
 
-  // Alist 配置（保留）
-  alist: [
-    {
-      name: '🐉神族九帝',
-      server: 'https://alist.shenzjd.com',
-    },
-    {
-      name: '💢repl',
-      server: 'https://ali.liucn.repl.co',
-    },
-  ],
+
 
   // 基本配置
   likes: true,
