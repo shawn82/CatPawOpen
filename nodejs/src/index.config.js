@@ -1,9 +1,4 @@
-url default {
-    kunyu77: {
-        testcfg: {
-            bbbb: 'aaaaa',
-        },
-    },
+export default  {
 bfm3u8: {
   url: "https://bfzyapi.com/api.php/provide/vod/",
   categories: [
