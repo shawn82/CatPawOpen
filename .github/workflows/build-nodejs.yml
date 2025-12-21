@@ -1,4 +1,4 @@
- name: Build NodeJS
+name: Build NodeJS
 
 on:
   workflow_dispatch:
@@ -8,43 +8,45 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-node@v3
-      with:
-        node-version: 18.17.1
-        
-    - name: Run npm bild
-      working-directory: nodejs
-      run: |
-        npm i
-        npm run build
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
-    - name: Copy build files
-  run: |
-    cp nodejs/dist/index.js ./index.js
-    cp nodejs/dist/index.config.js ./index.config.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.17.1
 
-- name: Generate MD5
-  run: |
-    md5sum index.js | awk '{print $1}' > index.js.md5
-    md5sum index.config.js | awk '{print $1}' > index.config.js.md5
+      - name: Install & Build
+        working-directory: nodejs
+        run: |
+          npm install
+          npm run build
 
-- name: Commit files
-  run: |
-    git config --local user.email "github-actions[bot]@users.noreply.github.com"
-    git config --local user.name "github-actions[bot]"
-    git add index.js index.js.md5 index.config.js index.config.js.md5
-    git diff --quiet && git diff --staged --quiet || git commit -m "Build: Update files [skip ci]"
+      - name: Copy build files
+        run: |
+          cp nodejs/dist/index.js ./index.js
+          cp nodejs/dist/index.config.js ./index.config.js
 
-- name: Push changes
-  uses: ad-m/github-push-action@master
-  with:
-    github_token: ${{ secrets.GITHUB_TOKEN }}
-    branch: ${{ github.ref }}
-        
-    - name: Archive dist
-      uses: actions/upload-artifact@v4
-      with:
-        name: dist
-        path: |
-          nodejs/dist
+      - name: Generate MD5
+        run: |
+          md5sum index.js | awk '{print $1}' > index.js.md5
+          md5sum index.config.js | awk '{print $1}' > index.config.js.md5
+
+      - name: Commit files
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add index.js index.js.md5 index.config.js index.config.js.md5
+          git diff --cached --quiet || git commit -m "Build: Update files [skip ci]"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
+
+      - name: Archive dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: nodejs/dist
