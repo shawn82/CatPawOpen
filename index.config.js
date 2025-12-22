@@ -1,3 +1,4 @@
+// src/index.config.js
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
@@ -15,18 +16,15 @@ var __copyProps = (to, from, except, desc) => {
   return to;
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-
-// src/index.config.js
 var index_config_exports = {};
 __export(index_config_exports, {
   default: () => index_config_default
 });
 module.exports = __toCommonJS(index_config_exports);
 var index_config_default = {
-  // 暴风资源配置 - 层级分类
+  // 暴风资源配置
   bfm3u8: {
     url: "https://bfzyapi.com/api.php/provide/vod/",
-    // 扁平化的所有分类(用于API请求)
     categories: [
       "电影片",
       "动作片",
@@ -63,78 +61,9 @@ var index_config_default = {
       "反转爽文",
       "电影解说",
       "体育赛事"
-    ],
-    // 层级分类结构(用于UI展示)
-    hierarchicalCategories: [
-      {
-        name: "电影片",
-        type: "parent",
-        children: [
-          "动作片",
-          "喜剧片",
-          "恐怖片",
-          "科幻片",
-          "爱情片",
-          "剧情片",
-          "战争片",
-          "纪录片",
-          "动画片"
-        ]
-      },
-      {
-        name: "连续剧",
-        type: "parent",
-        children: [
-          "国产剧",
-          "欧美剧",
-          "香港剧",
-          "韩国剧",
-          "台湾剧",
-          "日本剧",
-          "海外剧",
-          "泰国剧"
-        ]
-      },
-      {
-        name: "动漫片",
-        type: "parent",
-        children: [
-          "国产动漫",
-          "日韩动漫",
-          "欧美动漫"
-        ]
-      },
-      {
-        name: "综艺片",
-        type: "parent",
-        children: [
-          "大陆综艺",
-          "港台综艺",
-          "日韩综艺",
-          "欧美综艺"
-        ]
-      },
-      {
-        name: "短剧大全",
-        type: "parent",
-        children: [
-          "重生民国",
-          "穿越年代",
-          "现代言情",
-          "反转爽文"
-        ]
-      },
-      {
-        name: "电影解说",
-        type: "standalone"
-      },
-      {
-        name: "体育赛事",
-        type: "standalone"
-      }
     ]
   },
-  // 非凡资源配置 - 层级分类
+  // 非凡资源配置
   ffm3u8: {
     url: "https://cj.ffzyapi.com/api.php/provide/vod/from/ffm3u8",
     categories: [
@@ -165,62 +94,10 @@ var index_config_default = {
       "港台动漫",
       "海外动漫",
       "记录片"
-    ],
-    hierarchicalCategories: [
-      {
-        name: "电影",
-        type: "parent",
-        children: [
-          "动作片",
-          "喜剧片",
-          "爱情片",
-          "科幻片",
-          "恐怖片",
-          "剧情片",
-          "战争片",
-          "记录片"
-        ]
-      },
-      {
-        name: "电视剧",
-        type: "parent",
-        children: [
-          "国产剧",
-          "香港剧",
-          "韩国剧",
-          "欧美剧",
-          "台湾剧",
-          "日本剧",
-          "海外剧",
-          "泰国剧",
-          "短剧"
-        ]
-      },
-      {
-        name: "动漫片",
-        type: "parent",
-        children: [
-          "国产动漫",
-          "日韩动漫",
-          "欧美动漫",
-          "港台动漫",
-          "海外动漫"
-        ]
-      },
-      {
-        name: "综艺",
-        type: "parent",
-        children: [
-          "大陆综艺",
-          "港台综艺",
-          "日韩综艺",
-          "欧美综艺"
-        ]
-      }
     ]
   },
-  // 电影天堂资源配置 - 层级分类
-  dyttm3u8: {
+  // 电影天堂资源配置
+  dytt: {
     url: "http://caiji.dyttzyapi.com/api.php/provide/vod/from/dyttm3u8/",
     categories: [
       "电影片",
@@ -255,64 +132,10 @@ var index_config_default = {
       "港台综艺",
       "日韩综艺",
       "欧美综艺"
-    ],
-    hierarchicalCategories: [
-      {
-        name: "电影片",
-        type: "parent",
-        children: [
-          "动作片",
-          "喜剧片",
-          "科幻片",
-          "恐怖片",
-          "爱情片",
-          "剧情片",
-          "战争片",
-          "记录片",
-          "动画片",
-          "伦理片"
-        ]
-      },
-      {
-        name: "连续剧",
-        type: "parent",
-        children: [
-          "国产剧",
-          "欧美剧",
-          "香港剧",
-          "韩国剧",
-          "台湾剧",
-          "日本剧",
-          "海外剧",
-          "泰国剧",
-          "短剧"
-        ]
-      },
-      {
-        name: "动漫片",
-        type: "parent",
-        children: [
-          "国产动漫",
-          "日韩动漫",
-          "欧美动漫",
-          "港台动漫",
-          "海外动漫"
-        ]
-      },
-      {
-        name: "综艺片",
-        type: "parent",
-        children: [
-          "大陆综艺",
-          "港台综艺",
-          "日韩综艺",
-          "欧美综艺"
-        ]
-      }
     ]
   },
-  // 索尼资源配置 - 层级分类
-  snm3u8: {
+  // 索尼资源配置
+  suoni: {
     url: "https://suoniapi.com/api.php/provide/vod/",
     categories: [
       "电影片",
@@ -348,71 +171,10 @@ var index_config_default = {
       "欧美综艺",
       "影视解说",
       "体育赛事"
-    ],
-    hierarchicalCategories: [
-      {
-        name: "电影片",
-        type: "parent",
-        children: [
-          "动作片",
-          "喜剧片",
-          "爱情片",
-          "科幻片",
-          "恐怖片",
-          "剧情片",
-          "战争片",
-          "记录片",
-          "动画片"
-        ]
-      },
-      {
-        name: "连续剧",
-        type: "parent",
-        children: [
-          "国产剧",
-          "香港剧",
-          "韩国剧",
-          "欧美剧",
-          "台湾剧",
-          "日本剧",
-          "海外剧",
-          "泰国剧",
-          "短剧"
-        ]
-      },
-      {
-        name: "动漫片",
-        type: "parent",
-        children: [
-          "国产动漫",
-          "日韩动漫",
-          "欧美动漫",
-          "港台动漫",
-          "海外动漫"
-        ]
-      },
-      {
-        name: "综艺片",
-        type: "parent",
-        children: [
-          "大陆综艺",
-          "港台综艺",
-          "日韩综艺",
-          "欧美综艺"
-        ]
-      },
-      {
-        name: "影视解说",
-        type: "standalone"
-      },
-      {
-        name: "体育赛事",
-        type: "standalone"
-      }
     ]
   },
-  // 天涯资源配置 - 层级分类
-  tym3u8: {
+  // 天涯资源配置
+  tianya: {
     url: "https://tyyszyapi.com/api.php/provide/vod/",
     categories: [
       "电影片",
@@ -443,60 +205,10 @@ var index_config_default = {
       "港台综艺",
       "日韩综艺",
       "欧美综艺"
-    ],
-    hierarchicalCategories: [
-      {
-        name: "电影片",
-        type: "parent",
-        children: [
-          "动作片",
-          "喜剧片",
-          "爱情片",
-          "科幻片",
-          "恐怖片",
-          "剧情片",
-          "战争片",
-          "纪录片",
-          "动画片"
-        ]
-      },
-      {
-        name: "连续剧",
-        type: "parent",
-        children: [
-          "国产剧",
-          "香港剧",
-          "韩国剧",
-          "欧美剧",
-          "台湾剧",
-          "日本剧",
-          "海外剧",
-          "泰国剧"
-        ]
-      },
-      {
-        name: "动漫片",
-        type: "parent",
-        children: [
-          "国产动漫",
-          "日韩动漫",
-          "欧美动漫"
-        ]
-      },
-      {
-        name: "综艺片",
-        type: "parent",
-        children: [
-          "大陆综艺",
-          "港台综艺",
-          "日韩综艺",
-          "欧美综艺"
-        ]
-      }
     ]
   },
-  // 最大资源配置 - 层级分类
-  zuidam3u8: {
+  // 最大资源配置
+  zuida: {
     url: "https://zuidazy.me/api.php/provide/vod/",
     categories: [
       "电影",
@@ -554,104 +266,6 @@ var index_config_default = {
       "日本伦理",
       "两性课堂",
       "写真热舞"
-    ],
-    hierarchicalCategories: [
-      {
-        name: "电影",
-        type: "parent",
-        children: [
-          "动作片",
-          "喜剧片",
-          "爱情片",
-          "科幻片",
-          "恐怖片",
-          "剧情片",
-          "战争片",
-          "纪录片",
-          "动画片",
-          "4K电影",
-          "邵氏电影",
-          "Netflix电影"
-        ]
-      },
-      {
-        name: "电视剧",
-        type: "parent",
-        children: [
-          "国产剧",
-          "欧美剧",
-          "韩剧",
-          "日剧",
-          "港剧",
-          "台剧",
-          "泰剧",
-          "海外剧",
-          "Netflix自制剧"
-        ]
-      },
-      {
-        name: "综艺",
-        type: "parent",
-        children: [
-          "大陆综艺",
-          "日韩综艺",
-          "港台综艺",
-          "欧美综艺",
-          "演唱会"
-        ]
-      },
-      {
-        name: "动漫",
-        type: "parent",
-        children: [
-          "国产动漫",
-          "日韩动漫",
-          "欧美动漫",
-          "港台动漫",
-          "海外动漫",
-          "有声动漫"
-        ]
-      },
-      {
-        name: "体育赛事",
-        type: "parent",
-        children: [
-          "篮球",
-          "足球"
-        ]
-      },
-      {
-        name: "爽文短剧",
-        type: "parent",
-        children: [
-          "女频恋爱",
-          "反转爽剧",
-          "古装仙侠",
-          "年代穿越",
-          "脑洞悬疑",
-          "现代都市"
-        ]
-      },
-      {
-        name: "伦理",
-        type: "parent",
-        children: [
-          "港台三级",
-          "韩国伦理",
-          "西方伦理",
-          "日本伦理",
-          "两性课堂",
-          "写真热舞"
-        ]
-      },
-      {
-        name: "预告片",
-        type: "standalone"
-      },
-      {
-        name: "影视解说",
-        type: "standalone"
-      }
     ]
   },
   // 站点配置
@@ -668,22 +282,22 @@ var index_config_default = {
         "enable": true
       },
       {
-        "key": "dyttm3u8",
+        "key": "dytt",
         "name": "电影天堂资源",
         "enable": true
       },
       {
-        "key": "snm3u8",
+        "key": "suoni",
         "name": "索尼资源",
         "enable": true
       },
       {
-        "key": "tym3u8",
+        "key": "tianya",
         "name": "天涯资源",
         "enable": true
       },
       {
-        "key": "zuidam3u8",
+        "key": "zuida",
         "name": "最大资源",
         "enable": true
       }
@@ -692,7 +306,7 @@ var index_config_default = {
   // 基本配置
   likes: true,
   suffix: true,
-  // 主题颜色配置
+  // 主题颜色配置（保留）
   color: [
     {
       light: {
