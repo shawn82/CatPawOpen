@@ -1,10 +1,10 @@
 import push from './spider/video/push.js';
 import ffm3u8 from './spider/video/ffm3u8.js';
 import bfm3u8 from './spider/video/bfm3u8.js';  // 添加这行
-import ffm3u8 from './spider/video/suoni.js';
-import bfm3u8 from './spider/video/zuida.js';  // 添加这行
-import ffm3u8 from './spider/video/dytt.js';
-import bfm3u8 from './spider/video/tianya.js';  // 添加这行
+import suoni from './spider/video/suoni.js';
+import zuida from './spider/video/zuida.js';  // 添加这行
+import dytt from './spider/video/dytt.js';
+import tianya from './spider/video/tianya.js';  // 添加这行
 
 const spiders = [ffm3u8, bfm3u8,dytt,tianya,suoni,zuida, push];  // 在这里添加 bfm3u8
 const spiderPrefix = '/spider';
