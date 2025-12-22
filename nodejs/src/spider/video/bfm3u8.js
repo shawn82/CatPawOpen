@@ -10,6 +10,38 @@ import req from '../../util/req.js';
 let url = '';
 let categories = [];
 
+// 大小分类配置
+const categoryGroups = [
+    {
+        name: "电影片",
+        children: ["动作片", "喜剧片", "恐怖片", "科幻片", "爱情片", "剧情片", "战争片", "纪录片", "动画片"]
+    },
+    {
+        name: "连续剧",
+        children: ["国产剧", "欧美剧", "香港剧", "韩国剧", "台湾剧", "日本剧", "海外剧", "泰国剧"]
+    },
+    {
+        name: "动漫片",
+        children: ["国产动漫", "日韩动漫", "欧美动漫"]
+    },
+    {
+        name: "综艺片",
+        children: ["大陆综艺", "港台综艺", "日韩综艺", "欧美综艺"]
+    },
+    {
+        name: "短剧大全",
+        children: ["重生民国", "穿越年代", "现代言情", "反转爽文"]
+    },
+    {
+        name: "电影解说",
+        children: []
+    },
+    {
+        name: "体育赛事",
+        children: []
+    }
+];
+
 async function request(reqUrl) {
     let res = await req(reqUrl, {
         method: 'get',
@@ -25,9 +57,8 @@ async function init(inReq, _outResp) {
 
 const testSiteLikes = [];
 
-async function home(inReq, _outResp) {
+async function home(_inReq, _outResp) {
     const data = await request(url);
-    const categoryGroups = inReq.server.config.bfm3u8.categoryGroups;
 
     // 创建一个映射,从分类名称到分类信息
     const categoryMap = {};
@@ -41,49 +72,29 @@ async function home(inReq, _outResp) {
 
     // 构建扁平化的层级分类结构(使用type_pid表示父子关系)
     let classes = [];
-    if (categoryGroups && categoryGroups.length > 0) {
-        for (const group of categoryGroups) {
-            const parentCategory = categoryMap[group.name];
-            if (!parentCategory) continue;
+    for (const group of categoryGroups) {
+        const parentCategory = categoryMap[group.name];
+        if (!parentCategory) continue;
 
-            // 添加大分类(type_pid为0表示顶级分类)
-            classes.push({
-                type_id: parentCategory.type_id,
-                type_pid: 0,
-                type_name: group.name,
-            });
+        // 添加大分类(type_pid为0表示顶级分类)
+        classes.push({
+            type_id: parentCategory.type_id,
+            type_pid: 0,
+            type_name: group.name,
+        });
 
-            // 添加小分类(type_pid为父分类的type_id)
-            if (group.children && group.children.length > 0) {
-                for (const childName of group.children) {
-                    const childCategory = categoryMap[childName];
-                    if (childCategory) {
-                        classes.push({
-                            type_id: childCategory.type_id,
-                            type_pid: parentCategory.type_id,
-                            type_name: childCategory.type_name,
-                        });
-                    }
+        // 添加小分类(type_pid为父分类的type_id)
+        if (group.children && group.children.length > 0) {
+            for (const childName of group.children) {
+                const childCategory = categoryMap[childName];
+                if (childCategory) {
+                    classes.push({
+                        type_id: childCategory.type_id,
+                        type_pid: parentCategory.type_id,
+                        type_name: childCategory.type_name,
+                    });
                 }
             }
-        }
-    } else {
-        // 如果没有配置 categoryGroups,回退到原来的扁平结构
-        for (const cls of data.class) {
-            const n = cls.type_name.toString().trim();
-            if (categories && categories.length > 0) {
-                if (categories.indexOf(n) < 0) continue;
-            }
-            classes.push({
-                type_id: cls.type_id.toString(),
-                type_pid: 0,
-                type_name: n,
-            });
-        }
-        if (categories && categories.length > 0) {
-            classes = classes.sort((a, b) => {
-                return categories.indexOf(a.type_name) - categories.indexOf(b.type_name);
-            });
         }
     }
 
