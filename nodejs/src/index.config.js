@@ -255,6 +255,11 @@ export default {
   sites: {
     list: [
       {
+        "key": "douban",
+        "name": "豆瓣推荐",
+        "enable": true
+      },
+      {
         "key": "bfm3u8",
         "name": "暴风资源",
         "enable": true
