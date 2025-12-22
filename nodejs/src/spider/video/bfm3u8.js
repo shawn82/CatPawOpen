@@ -9,38 +9,6 @@ import req from '../../util/req.js';
 
 let url = '';
 
-// 大小分类配置
-const categoryGroups = [
-    {
-        name: "电影片",
-        children: ["动作片", "喜剧片", "恐怖片", "科幻片", "爱情片", "剧情片", "战争片", "纪录片", "动画片"]
-    },
-    {
-        name: "连续剧",
-        children: ["国产剧", "欧美剧", "香港剧", "韩国剧", "台湾剧", "日本剧", "海外剧", "泰国剧"]
-    },
-    {
-        name: "动漫片",
-        children: ["国产动漫", "日韩动漫", "欧美动漫"]
-    },
-    {
-        name: "综艺片",
-        children: ["大陆综艺", "港台综艺", "日韩综艺", "欧美综艺"]
-    },
-    {
-        name: "短剧大全",
-        children: ["重生民国", "穿越年代", "现代言情", "反转爽文"]
-    },
-    {
-        name: "电影解说",
-        children: []
-    },
-    {
-        name: "体育赛事",
-        children: []
-    }
-];
-
 async function request(reqUrl) {
     let res = await req(reqUrl, {
         method: 'get',
@@ -58,42 +26,108 @@ const testSiteLikes = [];
 async function home(_inReq, _outResp) {
     const data = await request(url);
 
-    // 创建一个映射,从分类名称到分类信息
+    // 从API获取所有分类，创建映射表
     const categoryMap = {};
     for (const cls of data.class) {
-        const n = cls.type_name.toString().trim();
-        categoryMap[n] = {
-            type_id: cls.type_id.toString(),
-            type_name: n,
-        };
+        const name = cls.type_name.toString().trim();
+        categoryMap[name] = cls.type_id.toString();
     }
 
-    // 构建扁平化的层级分类结构(使用type_pid表示父子关系)
-    let classes = [];
-    for (const group of categoryGroups) {
-        const parentCategory = categoryMap[group.name];
-        if (!parentCategory) continue;
+    // 定义大分类（直接硬编码）
+    let classes = [
+        {type_id: categoryMap["电影片"] || "1", type_name: "电影片"},
+        {type_id: categoryMap["连续剧"] || "2", type_name: "连续剧"},
+        {type_id: categoryMap["动漫片"] || "3", type_name: "动漫片"},
+        {type_id: categoryMap["综艺片"] || "4", type_name: "综艺片"},
+        {type_id: categoryMap["短剧大全"] || "5", type_name: "短剧大全"},
+        {type_id: categoryMap["电影解说"] || "6", type_name: "电影解说"},
+        {type_id: categoryMap["体育赛事"] || "7", type_name: "体育赛事"}
+    ];
 
-        // 添加大分类(type_pid为0表示顶级分类)
-        classes.push({
-            type_id: parentCategory.type_id,
-            type_pid: 0,
-            type_name: group.name,
-        });
+    // 定义筛选器（小分类作为筛选项）
+    let filterObj = {};
 
-        // 添加小分类(type_pid为父分类的type_id)
-        if (group.children && group.children.length > 0) {
-            for (const childName of group.children) {
-                const childCategory = categoryMap[childName];
-                if (childCategory) {
-                    classes.push({
-                        type_id: childCategory.type_id,
-                        type_pid: parentCategory.type_id,
-                        type_name: childCategory.type_name,
-                    });
-                }
-            }
-        }
+    // 电影片的筛选器
+    if (categoryMap["电影片"]) {
+        filterObj[categoryMap["电影片"]] = [{
+            key: "class",
+            name: "分类",
+            value: [
+                {n: "全部", v: ""},
+                {n: "动作片", v: categoryMap["动作片"] || ""},
+                {n: "喜剧片", v: categoryMap["喜剧片"] || ""},
+                {n: "恐怖片", v: categoryMap["恐怖片"] || ""},
+                {n: "科幻片", v: categoryMap["科幻片"] || ""},
+                {n: "爱情片", v: categoryMap["爱情片"] || ""},
+                {n: "剧情片", v: categoryMap["剧情片"] || ""},
+                {n: "战争片", v: categoryMap["战争片"] || ""},
+                {n: "纪录片", v: categoryMap["纪录片"] || ""},
+                {n: "动画片", v: categoryMap["动画片"] || ""}
+            ]
+        }];
+    }
+
+    // 连续剧的筛选器
+    if (categoryMap["连续剧"]) {
+        filterObj[categoryMap["连续剧"]] = [{
+            key: "class",
+            name: "分类",
+            value: [
+                {n: "全部", v: ""},
+                {n: "国产剧", v: categoryMap["国产剧"] || ""},
+                {n: "欧美剧", v: categoryMap["欧美剧"] || ""},
+                {n: "香港剧", v: categoryMap["香港剧"] || ""},
+                {n: "韩国剧", v: categoryMap["韩国剧"] || ""},
+                {n: "台湾剧", v: categoryMap["台湾剧"] || ""},
+                {n: "日本剧", v: categoryMap["日本剧"] || ""},
+                {n: "海外剧", v: categoryMap["海外剧"] || ""},
+                {n: "泰国剧", v: categoryMap["泰国剧"] || ""}
+            ]
+        }];
+    }
+
+    // 动漫片的筛选器
+    if (categoryMap["动漫片"]) {
+        filterObj[categoryMap["动漫片"]] = [{
+            key: "class",
+            name: "分类",
+            value: [
+                {n: "全部", v: ""},
+                {n: "国产动漫", v: categoryMap["国产动漫"] || ""},
+                {n: "日韩动漫", v: categoryMap["日韩动漫"] || ""},
+                {n: "欧美动漫", v: categoryMap["欧美动漫"] || ""}
+            ]
+        }];
+    }
+
+    // 综艺片的筛选器
+    if (categoryMap["综艺片"]) {
+        filterObj[categoryMap["综艺片"]] = [{
+            key: "class",
+            name: "分类",
+            value: [
+                {n: "全部", v: ""},
+                {n: "大陆综艺", v: categoryMap["大陆综艺"] || ""},
+                {n: "港台综艺", v: categoryMap["港台综艺"] || ""},
+                {n: "日韩综艺", v: categoryMap["日韩综艺"] || ""},
+                {n: "欧美综艺", v: categoryMap["欧美综艺"] || ""}
+            ]
+        }];
+    }
+
+    // 短剧大全的筛选器
+    if (categoryMap["短剧大全"]) {
+        filterObj[categoryMap["短剧大全"]] = [{
+            key: "class",
+            name: "分类",
+            value: [
+                {n: "全部", v: ""},
+                {n: "重生民国", v: categoryMap["重生民国"] || ""},
+                {n: "穿越年代", v: categoryMap["穿越年代"] || ""},
+                {n: "现代言情", v: categoryMap["现代言情"] || ""},
+                {n: "反转爽文", v: categoryMap["反转爽文"] || ""}
+            ]
+        }];
     }
 
     if (data.list) {
@@ -107,17 +141,24 @@ async function home(_inReq, _outResp) {
             });
         }
     }
-    return {
+
+    return JSON.stringify({
         class: classes,
-    };
+        filters: filterObj,
+    });
 }
 
 async function category(inReq, _outResp) {
     const tid = inReq.body.id;
     const pg = inReq.body.page;
+    const filters = inReq.body.filters;
     let page = pg || 1;
     if (page == 0) page = 1;
-    const data = await request(url + `?ac=detail&t=${tid}&pg=${page}`);
+
+    // 如果有filters且有class筛选，使用class的type_id，否则使用tid
+    const actualTid = (filters && filters.class) ? filters.class : tid;
+
+    const data = await request(url + `?ac=detail&t=${actualTid}&pg=${page}`);
     let videos = [];
     for (const vod of data.list) {
         videos.push({
@@ -127,12 +168,12 @@ async function category(inReq, _outResp) {
             vod_remarks: vod.vod_remarks,
         });
     }
-    return {
+    return JSON.stringify({
         page: parseInt(data.page),
         pagecount: data.pagecount,
         total: data.total,
         list: videos,
-    };
+    });
 }
 
 async function detail(inReq, _outResp) {
