@@ -115,7 +115,7 @@ async function search(_inReq, _outResp) {
 export default {
     meta: {
         key: 'douban',
-        name: '豆瓣‍',
+        name: '豆瓣 | 推荐',
         type: 3,
         indexs: 1,
     },
