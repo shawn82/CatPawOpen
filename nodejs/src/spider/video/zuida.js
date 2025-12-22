@@ -40,7 +40,7 @@ async function home(_inReq, _outResp) {
         key: "class",
         name: "分类",
         value: [
-            {n: "全部", v: ""},
+            {n: "动作片", v: "6"},
             {n: "喜剧片", v: "7"},
             {n: "爱情片", v: "8"},
             {n: "科幻片", v: "9"},
@@ -60,7 +60,7 @@ async function home(_inReq, _outResp) {
         key: "class",
         name: "分类",
         value: [
-            {n: "全部", v: ""},
+            {n: "国产剧", v: "13"},
             {n: "欧美剧", v: "14"},
             {n: "韩剧", v: "15"},
             {n: "日剧", v: "16"},
@@ -77,7 +77,7 @@ async function home(_inReq, _outResp) {
         key: "class",
         name: "分类",
         value: [
-            {n: "全部", v: ""},
+            {n: "大陆综艺", v: "25"},
             {n: "日韩综艺", v: "26"},
             {n: "港台综艺", v: "27"},
             {n: "欧美综艺", v: "28"},
@@ -90,7 +90,7 @@ async function home(_inReq, _outResp) {
         key: "class",
         name: "分类",
         value: [
-            {n: "全部", v: ""},
+            {n: "国产动漫", v: "29"},
             {n: "日韩动漫", v: "30"},
             {n: "欧美动漫", v: "31"},
             {n: "港台动漫", v: "44"},
@@ -104,7 +104,7 @@ async function home(_inReq, _outResp) {
         key: "class",
         name: "分类",
         value: [
-            {n: "全部", v: ""},
+            {n: "篮球", v: "49"},
             {n: "足球", v: "50"},
             {n: "斯诺克", v: "52"}
         ]
