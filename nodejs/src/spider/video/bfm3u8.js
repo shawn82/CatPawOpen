@@ -8,7 +8,6 @@ import * as HLS from 'hls-parser';
 import req from '../../util/req.js';
 
 let url = '';
-let categories = [];
 
 // 大小分类配置
 const categoryGroups = [
@@ -51,7 +50,6 @@ async function request(reqUrl) {
 
 async function init(inReq, _outResp) {
     url = inReq.server.config.bfm3u8.url;
-    categories = inReq.server.config.bfm3u8.categories;
     return {};
 }
 
