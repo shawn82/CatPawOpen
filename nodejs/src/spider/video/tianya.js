@@ -21,85 +21,77 @@ const testSiteLikes = [];
 async function home(_inReq, _outResp) {
     const data = await request(url);
 
-    const categoryMap = {};
-    for (const cls of data.class) {
-        const name = cls.type_name.toString().trim();
-        categoryMap[name] = cls.type_id.toString();
-    }
-
+    // 定义大分类（直接使用 type_id）
     let classes = [
-        {type_id: categoryMap["电影"] || "20", type_name: "电影"},
-        {type_id: categoryMap["电视剧"] || "39", type_name: "电视剧"},
-        {type_id: categoryMap["综艺"] || "45", type_name: "综艺"},
-        {type_id: categoryMap["动漫"] || "50", type_name: "动漫"},
-        {type_id: categoryMap["纪录片"] || "54", type_name: "纪录片"}
+        {type_id: "20", type_name: "电影"},
+        {type_id: "39", type_name: "电视剧"},
+        {type_id: "45", type_name: "综艺"},
+        {type_id: "50", type_name: "动漫"},
+        {type_id: "54", type_name: "纪录片"}
     ];
 
+    // 定义筛选器（直接使用 type_id）
     let filterObj = {};
 
-    if (categoryMap["电影"]) {
-        filterObj[categoryMap["电影"]] = [{
-            key: "class",
-            name: "分类",
-            value: [
-                {n: "全部", v: ""},
-                {n: "喜剧", v: categoryMap["喜剧"] || ""},
-                {n: "爱情", v: categoryMap["爱情"] || ""},
-                {n: "动作", v: categoryMap["动作"] || ""},
-                {n: "犯罪", v: categoryMap["犯罪"] || ""},
-                {n: "科幻", v: categoryMap["科幻"] || ""},
-                {n: "奇幻", v: categoryMap["奇幻"] || ""},
-                {n: "冒险", v: categoryMap["冒险"] || ""},
-                {n: "恐怖", v: categoryMap["恐怖"] || ""},
-                {n: "惊悚", v: categoryMap["惊悚"] || ""},
-                {n: "剧情", v: categoryMap["剧情"] || ""},
-                {n: "战争", v: categoryMap["战争"] || ""},
-                {n: "悬疑", v: categoryMap["悬疑"] || ""},
-                {n: "动画", v: categoryMap["动画"] || ""}
-            ]
-        }];
-    }
+    // 电影的筛选器
+    filterObj["20"] = [{
+        key: "class",
+        name: "分类",
+        value: [
+            {n: "全部", v: ""},
+            {n: "喜剧", v: "21"},
+            {n: "爱情", v: "22"},
+            {n: "动作", v: "23"},
+            {n: "犯罪", v: "24"},
+            {n: "科幻", v: "25"},
+            {n: "奇幻", v: "26"},
+            {n: "冒险", v: "27"},
+            {n: "恐怖", v: "29"},
+            {n: "惊悚", v: "30"},
+            {n: "剧情", v: "31"},
+            {n: "战争", v: "32"},
+            {n: "悬疑", v: "35"},
+            {n: "动画", v: "36"}
+        ]
+    }];
 
-    if (categoryMap["电视剧"]) {
-        filterObj[categoryMap["电视剧"]] = [{
-            key: "class",
-            name: "分类",
-            value: [
-                {n: "全部", v: ""},
-                {n: "国产剧", v: categoryMap["国产剧"] || ""},
-                {n: "港台剧", v: categoryMap["港台剧"] || ""},
-                {n: "日韩剧", v: categoryMap["日韩剧"] || ""},
-                {n: "欧美剧", v: categoryMap["欧美剧"] || ""}
-            ]
-        }];
-    }
+    // 电视剧的筛选器
+    filterObj["39"] = [{
+        key: "class",
+        name: "分类",
+        value: [
+            {n: "全部", v: ""},
+            {n: "国产剧", v: "40"},
+            {n: "港台剧", v: "41"},
+            {n: "日韩剧", v: "42"},
+            {n: "欧美剧", v: "43"}
+        ]
+    }];
 
-    if (categoryMap["综艺"]) {
-        filterObj[categoryMap["综艺"]] = [{
-            key: "class",
-            name: "分类",
-            value: [
-                {n: "全部", v: ""},
-                {n: "国产综艺", v: categoryMap["国产综艺"] || ""},
-                {n: "港台综艺", v: categoryMap["港台综艺"] || ""},
-                {n: "日韩综艺", v: categoryMap["日韩综艺"] || ""},
-                {n: "欧美综艺", v: categoryMap["欧美综艺"] || ""}
-            ]
-        }];
-    }
+    // 综艺的筛选器
+    filterObj["45"] = [{
+        key: "class",
+        name: "分类",
+        value: [
+            {n: "全部", v: ""},
+            {n: "国产综艺", v: "46"},
+            {n: "港台综艺", v: "47"},
+            {n: "日韩综艺", v: "48"},
+            {n: "欧美综艺", v: "49"}
+        ]
+    }];
 
-    if (categoryMap["动漫"]) {
-        filterObj[categoryMap["动漫"]] = [{
-            key: "class",
-            name: "分类",
-            value: [
-                {n: "全部", v: ""},
-                {n: "国产动漫", v: categoryMap["国产动漫"] || ""},
-                {n: "日本动漫", v: categoryMap["日本动漫"] || ""},
-                {n: "欧美动漫", v: categoryMap["欧美动漫"] || ""}
-            ]
-        }];
-    }
+    // 动漫的筛选器
+    filterObj["50"] = [{
+        key: "class",
+        name: "分类",
+        value: [
+            {n: "全部", v: ""},
+            {n: "国产动漫", v: "51"},
+            {n: "日本动漫", v: "52"},
+            {n: "欧美动漫", v: "53"}
+        ]
+    }];
 
     if (data.list) {
         const likes = await request(url + `?ac=detail&ids=${data.list.map((v) => v.vod_id).join(',')}`);

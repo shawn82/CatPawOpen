@@ -26,109 +26,107 @@ const testSiteLikes = [];
 async function home(_inReq, _outResp) {
     const data = await request(url);
 
-    // 从API获取所有分类，创建映射表
-    const categoryMap = {};
-    for (const cls of data.class) {
-        const name = cls.type_name.toString().trim();
-        categoryMap[name] = cls.type_id.toString();
-    }
-
-    // 定义大分类（直接硬编码）
+    // 定义大分类（直接使用 type_id）
     let classes = [
-        {type_id: categoryMap["电影片"] || "1", type_name: "电影片"},
-        {type_id: categoryMap["连续剧"] || "2", type_name: "连续剧"},
-        {type_id: categoryMap["动漫片"] || "3", type_name: "动漫片"},
-        {type_id: categoryMap["综艺片"] || "4", type_name: "综艺片"},
-        {type_id: categoryMap["短剧大全"] || "5", type_name: "短剧大全"},
-        {type_id: categoryMap["电影解说"] || "6", type_name: "电影解说"},
-        {type_id: categoryMap["体育赛事"] || "7", type_name: "体育赛事"}
+        {type_id: "20", type_name: "电影片"},
+        {type_id: "30", type_name: "连续剧"},
+        {type_id: "39", type_name: "动漫片"},
+        {type_id: "45", type_name: "综艺片"},
+        {type_id: "58", type_name: "短剧大全"},
+        {type_id: "51", type_name: "电影解说"},
+        {type_id: "53", type_name: "体育赛事"}
     ];
 
-    // 定义筛选器（小分类作为筛选项）
+    // 定义筛选器（直接使用 type_id）
     let filterObj = {};
 
     // 电影片的筛选器
-    if (categoryMap["电影片"]) {
-        filterObj[categoryMap["电影片"]] = [{
-            key: "class",
-            name: "分类",
-            value: [
-                {n: "全部", v: ""},
-                {n: "动作片", v: categoryMap["动作片"] || ""},
-                {n: "喜剧片", v: categoryMap["喜剧片"] || ""},
-                {n: "恐怖片", v: categoryMap["恐怖片"] || ""},
-                {n: "科幻片", v: categoryMap["科幻片"] || ""},
-                {n: "爱情片", v: categoryMap["爱情片"] || ""},
-                {n: "剧情片", v: categoryMap["剧情片"] || ""},
-                {n: "战争片", v: categoryMap["战争片"] || ""},
-                {n: "纪录片", v: categoryMap["纪录片"] || ""},
-                {n: "动画片", v: categoryMap["动画片"] || ""}
-            ]
-        }];
-    }
+    filterObj["20"] = [{
+        key: "class",
+        name: "分类",
+        value: [
+            {n: "全部", v: ""},
+            {n: "动作片", v: "21"},
+            {n: "喜剧片", v: "22"},
+            {n: "恐怖片", v: "23"},
+            {n: "科幻片", v: "24"},
+            {n: "爱情片", v: "25"},
+            {n: "剧情片", v: "26"},
+            {n: "战争片", v: "27"},
+            {n: "纪录片", v: "28"},
+            {n: "动画片", v: "50"}
+        ]
+    }];
 
     // 连续剧的筛选器
-    if (categoryMap["连续剧"]) {
-        filterObj[categoryMap["连续剧"]] = [{
-            key: "class",
-            name: "分类",
-            value: [
-                {n: "全部", v: ""},
-                {n: "国产剧", v: categoryMap["国产剧"] || ""},
-                {n: "欧美剧", v: categoryMap["欧美剧"] || ""},
-                {n: "香港剧", v: categoryMap["香港剧"] || ""},
-                {n: "韩国剧", v: categoryMap["韩国剧"] || ""},
-                {n: "台湾剧", v: categoryMap["台湾剧"] || ""},
-                {n: "日本剧", v: categoryMap["日本剧"] || ""},
-                {n: "海外剧", v: categoryMap["海外剧"] || ""},
-                {n: "泰国剧", v: categoryMap["泰国剧"] || ""}
-            ]
-        }];
-    }
+    filterObj["30"] = [{
+        key: "class",
+        name: "分类",
+        value: [
+            {n: "全部", v: ""},
+            {n: "国产剧", v: "31"},
+            {n: "欧美剧", v: "32"},
+            {n: "香港剧", v: "33"},
+            {n: "韩国剧", v: "34"},
+            {n: "台湾剧", v: "35"},
+            {n: "日本剧", v: "36"},
+            {n: "海外剧", v: "37"},
+            {n: "泰国剧", v: "38"}
+        ]
+    }];
 
     // 动漫片的筛选器
-    if (categoryMap["动漫片"]) {
-        filterObj[categoryMap["动漫片"]] = [{
-            key: "class",
-            name: "分类",
-            value: [
-                {n: "全部", v: ""},
-                {n: "国产动漫", v: categoryMap["国产动漫"] || ""},
-                {n: "日韩动漫", v: categoryMap["日韩动漫"] || ""},
-                {n: "欧美动漫", v: categoryMap["欧美动漫"] || ""}
-            ]
-        }];
-    }
+    filterObj["39"] = [{
+        key: "class",
+        name: "分类",
+        value: [
+            {n: "全部", v: ""},
+            {n: "国产动漫", v: "40"},
+            {n: "日韩动漫", v: "41"},
+            {n: "欧美动漫", v: "42"},
+            {n: "港台动漫", v: "43"},
+            {n: "海外动漫", v: "44"}
+        ]
+    }];
 
     // 综艺片的筛选器
-    if (categoryMap["综艺片"]) {
-        filterObj[categoryMap["综艺片"]] = [{
-            key: "class",
-            name: "分类",
-            value: [
-                {n: "全部", v: ""},
-                {n: "大陆综艺", v: categoryMap["大陆综艺"] || ""},
-                {n: "港台综艺", v: categoryMap["港台综艺"] || ""},
-                {n: "日韩综艺", v: categoryMap["日韩综艺"] || ""},
-                {n: "欧美综艺", v: categoryMap["欧美综艺"] || ""}
-            ]
-        }];
-    }
+    filterObj["45"] = [{
+        key: "class",
+        name: "分类",
+        value: [
+            {n: "全部", v: ""},
+            {n: "大陆综艺", v: "46"},
+            {n: "港台综艺", v: "47"},
+            {n: "日韩综艺", v: "48"},
+            {n: "欧美综艺", v: "49"}
+        ]
+    }];
 
     // 短剧大全的筛选器
-    if (categoryMap["短剧大全"]) {
-        filterObj[categoryMap["短剧大全"]] = [{
-            key: "class",
-            name: "分类",
-            value: [
-                {n: "全部", v: ""},
-                {n: "重生民国", v: categoryMap["重生民国"] || ""},
-                {n: "穿越年代", v: categoryMap["穿越年代"] || ""},
-                {n: "现代言情", v: categoryMap["现代言情"] || ""},
-                {n: "反转爽文", v: categoryMap["反转爽文"] || ""}
-            ]
-        }];
-    }
+    filterObj["58"] = [{
+        key: "class",
+        name: "分类",
+        value: [
+            {n: "全部", v: ""},
+            {n: "重生民国", v: "65"},
+            {n: "穿越年代", v: "66"},
+            {n: "现代言情", v: "67"},
+            {n: "反转爽文", v: "68"}
+        ]
+    }];
+
+    // 体育赛事的筛选器
+    filterObj["53"] = [{
+        key: "class",
+        name: "分类",
+        value: [
+            {n: "全部", v: ""},
+            {n: "足球", v: "54"},
+            {n: "篮球", v: "55"},
+            {n: "网球", v: "56"},
+            {n: "斯诺克", v: "57"}
+        ]
+    }];
 
     if (data.list) {
         const likes = await request(url + `?ac=detail&ids=${data.list.map((v) => v.vod_id).join(',')}`);
