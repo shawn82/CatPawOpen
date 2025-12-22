@@ -25,24 +25,68 @@ async function init(inReq, _outResp) {
 
 const testSiteLikes = [];
 
-async function home(_inReq, _outResp) {
+async function home(inReq, _outResp) {
     const data = await request(url);
-    let classes = [];
+    const categoryGroups = inReq.server.config.bfm3u8.categoryGroups;
+
+    // 创建一个映射,从分类名称到分类信息
+    const categoryMap = {};
     for (const cls of data.class) {
         const n = cls.type_name.toString().trim();
-        if (categories && categories.length > 0) {
-            if (categories.indexOf(n) < 0) continue;
-        }
-        classes.push({
+        categoryMap[n] = {
             type_id: cls.type_id.toString(),
             type_name: n,
-        });
+        };
     }
-    if (categories && categories.length > 0) {
-        classes = classes.sort((a, b) => {
-            return categories.indexOf(a.type_name) - categories.indexOf(b.type_name);
-        });
+
+    // 构建层级分类
+    let classes = [];
+    if (categoryGroups && categoryGroups.length > 0) {
+        for (const group of categoryGroups) {
+            const parentCategory = categoryMap[group.name];
+            if (!parentCategory) continue;
+
+            const categoryItem = {
+                type_id: parentCategory.type_id,
+                type_name: group.name,
+                type: group.children.length > 0 ? 'parent' : 'standalone',
+            };
+
+            // 添加子分类
+            if (group.children.length > 0) {
+                categoryItem.children = [];
+                for (const childName of group.children) {
+                    const childCategory = categoryMap[childName];
+                    if (childCategory) {
+                        categoryItem.children.push({
+                            type_id: childCategory.type_id,
+                            type_name: childCategory.type_name,
+                        });
+                    }
+                }
+            }
+
+            classes.push(categoryItem);
+        }
+    } else {
+        // 如果没有配置 categoryGroups,回退到原来的扁平结构
+        for (const cls of data.class) {
+            const n = cls.type_name.toString().trim();
+            if (categories && categories.length > 0) {
+                if (categories.indexOf(n) < 0) continue;
+            }
+            classes.push({
+                type_id: cls.type_id.toString(),
+                type_name: n,
+            });
+        }
+        if (categories && categories.length > 0) {
+            classes = classes.sort((a, b) => {
+                return categories.indexOf(a.type_name) - categories.indexOf(b.type_name);
+            });
+        }
     }
+
     if (data.list) {
         const likes = await request(url + `?ac=detail&ids=${data.list.map((v) => v.vod_id).join(',')}`);
         for (const vod of likes.list) {
