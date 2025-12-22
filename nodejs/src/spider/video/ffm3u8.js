@@ -21,23 +21,23 @@ const testSiteLikes = [];
 async function home(_inReq, _outResp) {
     const data = await request(url);
 
-    // 定义大分类（直接使用 type_id）
+    // 定义大分类（映射到有数据的 type_id）
+    // 原始 type_id 1,2,3,4 没有数据，映射到有数据的小分类
     let classes = [
-        {type_id: "1", type_name: "电影片"},
-        {type_id: "2", type_name: "连续剧"},
-        {type_id: "3", type_name: "综艺片"},
-        {type_id: "4", type_name: "动漫片"}
+        {type_id: "6", type_name: "电影片"},     // 1 -> 6 (动作片)
+        {type_id: "13", type_name: "连续剧"},    // 2 -> 13 (国产剧)
+        {type_id: "25", type_name: "综艺片"},    // 3 -> 25 (大陆综艺)
+        {type_id: "29", type_name: "动漫片"}     // 4 -> 29 (国产动漫)
     ];
 
     // 定义筛选器（直接使用 type_id）
     let filterObj = {};
 
-    // 电影片的筛选器
-    filterObj["1"] = [{
+    // 电影片的筛选器（key 使用映射后的 type_id）
+    filterObj["6"] = [{
         key: "class",
         name: "分类",
         value: [
-            {n: "全部", v: ""},
             {n: "动作片", v: "6"},
             {n: "喜剧片", v: "7"},
             {n: "爱情片", v: "8"},
@@ -50,12 +50,11 @@ async function home(_inReq, _outResp) {
         ]
     }];
 
-    // 连续剧的筛选器
-    filterObj["2"] = [{
+    // 连续剧的筛选器（key 使用映射后的 type_id）
+    filterObj["13"] = [{
         key: "class",
         name: "分类",
         value: [
-            {n: "全部", v: ""},
             {n: "国产剧", v: "13"},
             {n: "香港剧", v: "14"},
             {n: "韩国剧", v: "15"},
@@ -68,12 +67,11 @@ async function home(_inReq, _outResp) {
         ]
     }];
 
-    // 综艺片的筛选器
-    filterObj["3"] = [{
+    // 综艺片的筛选器（key 使用映射后的 type_id）
+    filterObj["25"] = [{
         key: "class",
         name: "分类",
         value: [
-            {n: "全部", v: ""},
             {n: "大陆综艺", v: "25"},
             {n: "港台综艺", v: "26"},
             {n: "日韩综艺", v: "27"},
@@ -81,12 +79,11 @@ async function home(_inReq, _outResp) {
         ]
     }];
 
-    // 动漫片的筛选器
-    filterObj["4"] = [{
+    // 动漫片的筛选器（key 使用映射后的 type_id）
+    filterObj["29"] = [{
         key: "class",
         name: "分类",
         value: [
-            {n: "全部", v: ""},
             {n: "国产动漫", v: "29"},
             {n: "日韩动漫", v: "30"},
             {n: "欧美动漫", v: "31"},

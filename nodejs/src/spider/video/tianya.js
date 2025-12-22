@@ -21,24 +21,24 @@ const testSiteLikes = [];
 async function home(_inReq, _outResp) {
     const data = await request(url);
 
-    // 定义大分类（直接使用 type_id）
+    // 定义大分类（映射到有数据的 type_id）
+    // 原始 type_id 20,39,45,50,54 没有数据，映射到有数据的小分类
     let classes = [
-        {type_id: "20", type_name: "电影"},
-        {type_id: "39", type_name: "电视剧"},
-        {type_id: "45", type_name: "综艺"},
-        {type_id: "50", type_name: "动漫"},
+        {type_id: "21", type_name: "电影"},      // 20 -> 21 (喜剧)
+        {type_id: "40", type_name: "电视剧"},    // 39 -> 40 (国产剧)
+        {type_id: "46", type_name: "综艺"},      // 45 -> 46 (国产综艺)
+        {type_id: "51", type_name: "动漫"},      // 50 -> 51 (国产动漫)
         {type_id: "54", type_name: "纪录片"}
     ];
 
     // 定义筛选器（直接使用 type_id）
     let filterObj = {};
 
-    // 电影的筛选器
-    filterObj["20"] = [{
+    // 电影的筛选器（key 使用映射后的 type_id）
+    filterObj["21"] = [{
         key: "class",
         name: "分类",
         value: [
-            {n: "全部", v: ""},
             {n: "喜剧", v: "21"},
             {n: "爱情", v: "22"},
             {n: "动作", v: "23"},
@@ -55,12 +55,11 @@ async function home(_inReq, _outResp) {
         ]
     }];
 
-    // 电视剧的筛选器
-    filterObj["39"] = [{
+    // 电视剧的筛选器（key 使用映射后的 type_id）
+    filterObj["40"] = [{
         key: "class",
         name: "分类",
         value: [
-            {n: "全部", v: ""},
             {n: "国产剧", v: "40"},
             {n: "港台剧", v: "41"},
             {n: "日韩剧", v: "42"},
@@ -68,12 +67,11 @@ async function home(_inReq, _outResp) {
         ]
     }];
 
-    // 综艺的筛选器
-    filterObj["45"] = [{
+    // 综艺的筛选器（key 使用映射后的 type_id）
+    filterObj["46"] = [{
         key: "class",
         name: "分类",
         value: [
-            {n: "全部", v: ""},
             {n: "国产综艺", v: "46"},
             {n: "港台综艺", v: "47"},
             {n: "日韩综艺", v: "48"},
@@ -81,12 +79,11 @@ async function home(_inReq, _outResp) {
         ]
     }];
 
-    // 动漫的筛选器
-    filterObj["50"] = [{
+    // 动漫的筛选器（key 使用映射后的 type_id）
+    filterObj["51"] = [{
         key: "class",
         name: "分类",
         value: [
-            {n: "全部", v: ""},
             {n: "国产动漫", v: "51"},
             {n: "日本动漫", v: "52"},
             {n: "欧美动漫", v: "53"}
