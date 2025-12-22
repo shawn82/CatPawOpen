@@ -20,13 +20,14 @@ const testSiteLikes = [];
 async function home(_inReq, _outResp) {
     const data = await request(url);
 
-    // 定义大分类（直接使用 type_id）
+    // 定义大分类（映射到有数据的 type_id）
+    // 原始 type_id 1,2,3,4,48 没有数据，映射到有数据的小分类
     let classes = [
-        {type_id: "1", type_name: "电影"},
-        {type_id: "2", type_name: "电视剧"},
-        {type_id: "3", type_name: "综艺"},
-        {type_id: "4", type_name: "动漫"},
-        {type_id: "48", type_name: "体育赛事"},
+        {type_id: "6", type_name: "电影"},      // 1 -> 6 (动作片)
+        {type_id: "13", type_name: "电视剧"},    // 2 -> 13 (国产剧)
+        {type_id: "25", type_name: "综艺"},      // 3 -> 25 (大陆综艺)
+        {type_id: "29", type_name: "动漫"},      // 4 -> 29 (国产动漫)
+        {type_id: "49", type_name: "体育赛事"},  // 48 -> 49 (篮球)
         {type_id: "53", type_name: "影视解说"},
         {type_id: "54", type_name: "爽文短剧"}
     ];
@@ -34,12 +35,12 @@ async function home(_inReq, _outResp) {
     // 定义筛选器（直接使用 type_id）
     let filterObj = {};
 
-    // 电影的筛选器
-    filterObj["1"] = [{
+    // 电影的筛选器（key 使用映射后的 type_id）
+    filterObj["6"] = [{
         key: "class",
         name: "分类",
         value: [
-            {n: "全部", v: ""},
+            {n: "全部", v: "6"},
             {n: "动作片", v: "6"},
             {n: "喜剧片", v: "7"},
             {n: "爱情片", v: "8"},
@@ -55,12 +56,12 @@ async function home(_inReq, _outResp) {
         ]
     }];
 
-    // 电视剧的筛选器
-    filterObj["2"] = [{
+    // 电视剧的筛选器（key 使用映射后的 type_id）
+    filterObj["13"] = [{
         key: "class",
         name: "分类",
         value: [
-            {n: "全部", v: ""},
+            {n: "全部", v: "13"},
             {n: "国产剧", v: "13"},
             {n: "欧美剧", v: "14"},
             {n: "韩剧", v: "15"},
@@ -73,12 +74,12 @@ async function home(_inReq, _outResp) {
         ]
     }];
 
-    // 综艺的筛选器
-    filterObj["3"] = [{
+    // 综艺的筛选器（key 使用映射后的 type_id）
+    filterObj["25"] = [{
         key: "class",
         name: "分类",
         value: [
-            {n: "全部", v: ""},
+            {n: "全部", v: "25"},
             {n: "大陆综艺", v: "25"},
             {n: "日韩综艺", v: "26"},
             {n: "港台综艺", v: "27"},
@@ -87,12 +88,12 @@ async function home(_inReq, _outResp) {
         ]
     }];
 
-    // 动漫的筛选器
-    filterObj["4"] = [{
+    // 动漫的筛选器（key 使用映射后的 type_id）
+    filterObj["29"] = [{
         key: "class",
         name: "分类",
         value: [
-            {n: "全部", v: ""},
+            {n: "全部", v: "29"},
             {n: "国产动漫", v: "29"},
             {n: "日韩动漫", v: "30"},
             {n: "欧美动漫", v: "31"},
@@ -102,12 +103,12 @@ async function home(_inReq, _outResp) {
         ]
     }];
 
-    // 体育赛事的筛选器
-    filterObj["48"] = [{
+    // 体育赛事的筛选器（key 使用映射后的 type_id）
+    filterObj["49"] = [{
         key: "class",
         name: "分类",
         value: [
-            {n: "全部", v: ""},
+            {n: "全部", v: "49"},
             {n: "篮球", v: "49"},
             {n: "足球", v: "50"},
             {n: "斯诺克", v: "52"}
