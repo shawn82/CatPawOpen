@@ -279,7 +279,7 @@ async function test(inReq, outResp) {
 
 export default {
     meta: {
-        key: 'tyysm3u8',      // 修改这里
+        key: 'tianya',      // 修改这里
         name: '天涯 | 影视',      // 修改这里
         type: 3,
     },
