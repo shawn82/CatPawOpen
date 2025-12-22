@@ -286,7 +286,7 @@ async function test(inReq, outResp) {
 export default {
     meta: {
         key: 'bfm3u8',
-        name: '暴风资源',
+        name: '暴风 | 影视',
         type: 3,
     },
     api: async (fastify) => {
