@@ -2,7 +2,7 @@ import * as HLS from 'hls-parser';
 import req from '../../util/req.js';
 
 let url = '';
-
+let categories = [];
 
 async function request(reqUrl) {
     let res = await req(reqUrl, {
@@ -12,7 +12,8 @@ async function request(reqUrl) {
 }
 
 async function init(inReq, _outResp) {
-    url = inReq.server.config.tianya.url;
+    url = inReq.server.config.ffm3u8.url;
+    categories = inReq.server.config.ffm3u8.categories;
     return {};
 }
 
@@ -20,87 +21,22 @@ const testSiteLikes = [];
 
 async function home(_inReq, _outResp) {
     const data = await request(url);
-
-    const categoryMap = {};
+    let classes = [];
     for (const cls of data.class) {
-        const name = cls.type_name.toString().trim();
-        categoryMap[name] = cls.type_id.toString();
+        const n = cls.type_name.toString().trim();
+        if (categories && categories.length > 0) {
+            if (categories.indexOf(n) < 0) continue;
+        }
+        classes.push({
+            type_id: cls.type_id.toString(),
+            type_name: n,
+        });
     }
-
-    let classes = [
-        {type_id: categoryMap["电影"] || "20", type_name: "电影"},
-        {type_id: categoryMap["电视剧"] || "39", type_name: "电视剧"},
-        {type_id: categoryMap["综艺"] || "45", type_name: "综艺"},
-        {type_id: categoryMap["动漫"] || "50", type_name: "动漫"},
-        {type_id: categoryMap["纪录片"] || "54", type_name: "纪录片"}
-    ];
-
-    let filterObj = {};
-
-    if (categoryMap["电影"]) {
-        filterObj[categoryMap["电影"]] = [{
-            key: "class",
-            name: "分类",
-            value: [
-                {n: "全部", v: ""},
-                {n: "喜剧", v: categoryMap["喜剧"] || ""},
-                {n: "爱情", v: categoryMap["爱情"] || ""},
-                {n: "动作", v: categoryMap["动作"] || ""},
-                {n: "犯罪", v: categoryMap["犯罪"] || ""},
-                {n: "科幻", v: categoryMap["科幻"] || ""},
-                {n: "奇幻", v: categoryMap["奇幻"] || ""},
-                {n: "冒险", v: categoryMap["冒险"] || ""},
-                {n: "恐怖", v: categoryMap["恐怖"] || ""},
-                {n: "惊悚", v: categoryMap["惊悚"] || ""},
-                {n: "剧情", v: categoryMap["剧情"] || ""},
-                {n: "战争", v: categoryMap["战争"] || ""},
-                {n: "悬疑", v: categoryMap["悬疑"] || ""},
-                {n: "动画", v: categoryMap["动画"] || ""}
-            ]
-        }];
+    if (categories && categories.length > 0) {
+        classes = classes.sort((a, b) => {
+            return categories.indexOf(a.type_name) - categories.indexOf(b.type_name);
+        });
     }
-
-    if (categoryMap["电视剧"]) {
-        filterObj[categoryMap["电视剧"]] = [{
-            key: "class",
-            name: "分类",
-            value: [
-                {n: "全部", v: ""},
-                {n: "国产剧", v: categoryMap["国产剧"] || ""},
-                {n: "港台剧", v: categoryMap["港台剧"] || ""},
-                {n: "日韩剧", v: categoryMap["日韩剧"] || ""},
-                {n: "欧美剧", v: categoryMap["欧美剧"] || ""}
-            ]
-        }];
-    }
-
-    if (categoryMap["综艺"]) {
-        filterObj[categoryMap["综艺"]] = [{
-            key: "class",
-            name: "分类",
-            value: [
-                {n: "全部", v: ""},
-                {n: "国产综艺", v: categoryMap["国产综艺"] || ""},
-                {n: "港台综艺", v: categoryMap["港台综艺"] || ""},
-                {n: "日韩综艺", v: categoryMap["日韩综艺"] || ""},
-                {n: "欧美综艺", v: categoryMap["欧美综艺"] || ""}
-            ]
-        }];
-    }
-
-    if (categoryMap["动漫"]) {
-        filterObj[categoryMap["动漫"]] = [{
-            key: "class",
-            name: "分类",
-            value: [
-                {n: "全部", v: ""},
-                {n: "国产动漫", v: categoryMap["国产动漫"] || ""},
-                {n: "日本动漫", v: categoryMap["日本动漫"] || ""},
-                {n: "欧美动漫", v: categoryMap["欧美动漫"] || ""}
-            ]
-        }];
-    }
-
     if (data.list) {
         const likes = await request(url + `?ac=detail&ids=${data.list.map((v) => v.vod_id).join(',')}`);
         for (const vod of likes.list) {
@@ -112,23 +48,17 @@ async function home(_inReq, _outResp) {
             });
         }
     }
-
-    return JSON.stringify({
+    return {
         class: classes,
-        filters: filterObj,
-    });
+    };
 }
 
 async function category(inReq, _outResp) {
     const tid = inReq.body.id;
     const pg = inReq.body.page;
-    const filters = inReq.body.filters;
     let page = pg || 1;
     if (page == 0) page = 1;
-
-    const actualTid = (filters && filters.class) ? filters.class : tid;
-
-    const data = await request(url + `?ac=detail&t=${actualTid}&pg=${page}`);
+    const data = await request(url + `?ac=detail&t=${tid}&pg=${page}`);
     let videos = [];
     for (const vod of data.list) {
         videos.push({
@@ -138,12 +68,12 @@ async function category(inReq, _outResp) {
             vod_remarks: vod.vod_remarks,
         });
     }
-    return JSON.stringify({
+    return {
         page: parseInt(data.page),
         pagecount: data.pagecount,
         total: data.total,
         list: videos,
-    });
+    };
 }
 
 async function detail(inReq, _outResp) {
@@ -306,7 +236,7 @@ async function test(inReq, outResp) {
             printErr(resp.json());
             if (dataResult.category.list.length > 0) {
                 resp = await inReq.server.inject().post(`${prefix}/detail`).payload({
-                    id: dataResult.category.list[0].vod_id,
+                    id: dataResult.category.list[0].vod_id, // dataResult.category.list.map((v) => v.vod_id),
                 });
                 dataResult.detail = resp.json();
                 printErr(resp.json());
@@ -349,8 +279,8 @@ async function test(inReq, outResp) {
 
 export default {
     meta: {
-        key: 'tianya',      // 修改这里
-        name: '天涯 | 影视',      // 修改这里
+        key: 'ffm3u8',
+        name: '非凡 | 影视',
         type: 3,
     },
     api: async (fastify) => {

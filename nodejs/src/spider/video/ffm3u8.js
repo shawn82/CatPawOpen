@@ -2,7 +2,7 @@ import * as HLS from 'hls-parser';
 import req from '../../util/req.js';
 
 let url = '';
-let categories = [];
+
 
 async function request(reqUrl) {
     let res = await req(reqUrl, {
@@ -13,7 +13,6 @@ async function request(reqUrl) {
 
 async function init(inReq, _outResp) {
     url = inReq.server.config.ffm3u8.url;
-    categories = inReq.server.config.ffm3u8.categories;
     return {};
 }
 
