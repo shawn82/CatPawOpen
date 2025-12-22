@@ -39,34 +39,33 @@ async function home(inReq, _outResp) {
         };
     }
 
-    // 构建层级分类
+    // 构建扁平化的层级分类结构(使用type_pid表示父子关系)
     let classes = [];
     if (categoryGroups && categoryGroups.length > 0) {
         for (const group of categoryGroups) {
             const parentCategory = categoryMap[group.name];
             if (!parentCategory) continue;
 
-            const categoryItem = {
+            // 添加大分类(type_pid为0表示顶级分类)
+            classes.push({
                 type_id: parentCategory.type_id,
+                type_pid: 0,
                 type_name: group.name,
-                type: group.children.length > 0 ? 'parent' : 'standalone',
-            };
+            });
 
-            // 添加子分类
-            if (group.children.length > 0) {
-                categoryItem.children = [];
+            // 添加小分类(type_pid为父分类的type_id)
+            if (group.children && group.children.length > 0) {
                 for (const childName of group.children) {
                     const childCategory = categoryMap[childName];
                     if (childCategory) {
-                        categoryItem.children.push({
+                        classes.push({
                             type_id: childCategory.type_id,
+                            type_pid: parentCategory.type_id,
                             type_name: childCategory.type_name,
                         });
                     }
                 }
             }
-
-            classes.push(categoryItem);
         }
     } else {
         // 如果没有配置 categoryGroups,回退到原来的扁平结构
@@ -77,6 +76,7 @@ async function home(inReq, _outResp) {
             }
             classes.push({
                 type_id: cls.type_id.toString(),
+                type_pid: 0,
                 type_name: n,
             });
         }
