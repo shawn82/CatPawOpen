@@ -20,22 +20,95 @@ const testSiteLikes = [];
 
 async function home(_inReq, _outResp) {
     const data = await request(url);
-    let classes = [];
+
+    // 从API获取所有分类，创建映射表
+    const categoryMap = {};
     for (const cls of data.class) {
-        const n = cls.type_name.toString().trim();
-        if (categories && categories.length > 0) {
-            if (categories.indexOf(n) < 0) continue;
-        }
-        classes.push({
-            type_id: cls.type_id.toString(),
-            type_name: n,
-        });
+        const name = cls.type_name.toString().trim();
+        categoryMap[name] = cls.type_id.toString();
     }
-    if (categories && categories.length > 0) {
-        classes = classes.sort((a, b) => {
-            return categories.indexOf(a.type_name) - categories.indexOf(b.type_name);
-        });
+
+    // 定义大分类
+    let classes = [
+        {type_id: categoryMap["电影片"] || "1", type_name: "电影片"},
+        {type_id: categoryMap["连续剧"] || "2", type_name: "连续剧"},
+        {type_id: categoryMap["综艺片"] || "3", type_name: "综艺片"},
+        {type_id: categoryMap["动漫片"] || "4", type_name: "动漫片"}
+    ];
+
+    // 定义筛选器
+    let filterObj = {};
+
+    // 电影片的筛选器
+    if (categoryMap["电影片"]) {
+        filterObj[categoryMap["电影片"]] = [{
+            key: "class",
+            name: "分类",
+            value: [
+                {n: "全部", v: ""},
+                {n: "动作片", v: categoryMap["动作片"] || ""},
+                {n: "喜剧片", v: categoryMap["喜剧片"] || ""},
+                {n: "爱情片", v: categoryMap["爱情片"] || ""},
+                {n: "科幻片", v: categoryMap["科幻片"] || ""},
+                {n: "恐怖片", v: categoryMap["恐怖片"] || ""},
+                {n: "剧情片", v: categoryMap["剧情片"] || ""},
+                {n: "战争片", v: categoryMap["战争片"] || ""},
+                {n: "犯罪片", v: categoryMap["犯罪片"] || ""},
+                {n: "奇幻片", v: categoryMap["奇幻片"] || ""},
+                {n: "冒险片", v: categoryMap["冒险片"] || ""},
+                {n: "悬疑片", v: categoryMap["悬疑片"] || ""},
+                {n: "惊悚片", v: categoryMap["惊悚片"] || ""}
+            ]
+        }];
     }
+
+    // 连续剧的筛选器
+    if (categoryMap["连续剧"]) {
+        filterObj[categoryMap["连续剧"]] = [{
+            key: "class",
+            name: "分类",
+            value: [
+                {n: "全部", v: ""},
+                {n: "国产剧", v: categoryMap["国产剧"] || ""},
+                {n: "香港剧", v: categoryMap["香港剧"] || ""},
+                {n: "韩国剧", v: categoryMap["韩国剧"] || ""},
+                {n: "欧美剧", v: categoryMap["欧美剧"] || ""},
+                {n: "台湾剧", v: categoryMap["台湾剧"] || ""},
+                {n: "日本剧", v: categoryMap["日本剧"] || ""},
+                {n: "海外剧", v: categoryMap["海外剧"] || ""}
+            ]
+        }];
+    }
+
+    // 综艺片的筛选器
+    if (categoryMap["综艺片"]) {
+        filterObj[categoryMap["综艺片"]] = [{
+            key: "class",
+            name: "分类",
+            value: [
+                {n: "全部", v: ""},
+                {n: "港台综艺", v: categoryMap["港台综艺"] || ""},
+                {n: "日韩综艺", v: categoryMap["日韩综艺"] || ""},
+                {n: "欧美综艺", v: categoryMap["欧美综艺"] || ""}
+            ]
+        }];
+    }
+
+    // 动漫片的筛选器
+    if (categoryMap["动漫片"]) {
+        filterObj[categoryMap["动漫片"]] = [{
+            key: "class",
+            name: "分类",
+            value: [
+                {n: "全部", v: ""},
+                {n: "国产动漫", v: categoryMap["国产动漫"] || ""},
+                {n: "日韩动漫", v: categoryMap["日韩动漫"] || ""},
+                {n: "欧美动漫", v: categoryMap["欧美动漫"] || ""},
+                {n: "港台动漫", v: categoryMap["港台动漫"] || ""}
+            ]
+        }];
+    }
+
     if (data.list) {
         const likes = await request(url + `?ac=detail&ids=${data.list.map((v) => v.vod_id).join(',')}`);
         for (const vod of likes.list) {
@@ -47,17 +120,23 @@ async function home(_inReq, _outResp) {
             });
         }
     }
-    return {
+
+    return JSON.stringify({
         class: classes,
-    };
+        filters: filterObj,
+    });
 }
 
 async function category(inReq, _outResp) {
     const tid = inReq.body.id;
     const pg = inReq.body.page;
+    const filters = inReq.body.filters;
     let page = pg || 1;
     if (page == 0) page = 1;
-    const data = await request(url + `?ac=detail&t=${tid}&pg=${page}`);
+
+    const actualTid = (filters && filters.class) ? filters.class : tid;
+
+    const data = await request(url + `?ac=detail&t=${actualTid}&pg=${page}`);
     let videos = [];
     for (const vod of data.list) {
         videos.push({
@@ -67,12 +146,12 @@ async function category(inReq, _outResp) {
             vod_remarks: vod.vod_remarks,
         });
     }
-    return {
+    return JSON.stringify({
         page: parseInt(data.page),
         pagecount: data.pagecount,
         total: data.total,
         list: videos,
-    };
+    });
 }
 
 async function detail(inReq, _outResp) {
