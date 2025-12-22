@@ -12,8 +12,8 @@ async function request(reqUrl) {
 }
 
 async function init(inReq, _outResp) {
-    url = inReq.server.config.bfm3u8.url;
-    categories = inReq.server.config.bfm3u8.categories;
+    url = inReq.server.config.zuida.url;
+    categories = inReq.server.config.zuida.categories;
     return {};
 }
 
