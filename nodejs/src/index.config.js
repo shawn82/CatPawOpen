@@ -57,12 +57,7 @@ var index_config_default = {
         "key": "zuida",
         "name": "最大资源",
         "enable": true
-      }
-    ]
-  },
-  {
-  "video": {
-    "sites": [
+      },
       {
         "key": "olehdtv",
         "name": "欧乐影院",
@@ -70,8 +65,7 @@ var index_config_default = {
         "api": "/spider/video/olehdtv/3"
       }
     ]
-  }
-},
+  },
   // 基本配置
   likes: true,
   suffix: true,
