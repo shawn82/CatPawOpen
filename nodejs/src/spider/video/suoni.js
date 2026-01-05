@@ -1,7 +1,8 @@
 import * as HLS from 'hls-parser';
 import req from '../../util/req.js';
 
-let url = '';
+const API_URL = 'https://suoniapi.com/api.php/provide/vod/';
+let url = API_URL;
 
 
 async function request(reqUrl) {
@@ -12,7 +13,12 @@ async function request(reqUrl) {
 }
 
 async function init(inReq, _outResp) {
-    url = inReq.server.config.suoni.url;
+    // 优先使用 config 中的自定义 URL（如果存在）
+    if (inReq.server.config?.suoni?.url) {
+        url = inReq.server.config.suoni.url;
+    } else {
+        url = API_URL;
+    }
     return {};
 }
 

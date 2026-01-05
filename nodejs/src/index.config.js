@@ -23,30 +23,8 @@ __export(index_config_exports, {
 });
 module.exports = __toCommonJS(index_config_exports);
 var index_config_default = {
-  // 暴风资源配置
-  bfm3u8: {
-    url: "https://bfzyapi.com/api.php/provide/vod/"
-  },
-  // 非凡资源配置
-  ffm3u8: {
-    url: "https://cj.ffzyapi.com/api.php/provide/vod/from/ffm3u8"
-  },
-  // 电影天堂资源配置
-  dytt: {
-    url: "http://caiji.dyttzyapi.com/api.php/provide/vod/from/dyttm3u8/"
-  },
-  // 索尼资源配置
-  suoni: {
-    url: "https://suoniapi.com/api.php/provide/vod/"
-  },
-  // 天涯资源配置
-  tianya: {
-    url: "https://tyyszyapi.com/api.php/provide/vod/"
-  },
-  // 最大资源配置
-  zuida: {
-    url: "https://zuidazy.me/api.php/provide/vod/"
-  },
+  // API URL 配置已移至各爬虫文件内部以保护隐私
+  // 各爬虫可通过 config 参数覆盖内部URL（向后兼容）
   // 站点配置
   sites: {
     list: [
