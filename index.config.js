@@ -56,6 +56,12 @@ var index_config_default = {
         "key": "zuida",
         "name": "最大资源",
         "enable": true
+      },
+      {
+        "key": "olehdtv",
+        "name": "欧乐影院",
+        "type": 3,
+        "api": "/spider/video/olehdtv/3"
       }
     ]
   },
