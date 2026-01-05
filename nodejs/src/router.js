@@ -6,8 +6,9 @@ import zuida from './spider/video/zuida.js';  // 添加这行
 import dytt from './spider/video/dytt.js';
 import tianya from './spider/video/tianya.js';  // 添加这行
 import douban from "./spider/video/douban.js";
+import olehdtv from "./spider/video/olehdtv.js";
 
-const spiders = [douban, ffm3u8, bfm3u8, dytt, tianya, suoni, zuida, push];  // 在这里添加 bfm3u8
+const spiders = [douban, ffm3u8, bfm3u8, dytt, tianya, suoni, zuida, olehdtv, push];  // 在这里添加 bfm3u8
 const spiderPrefix = '/spider';
 
 /**
