@@ -60,6 +60,18 @@ var index_config_default = {
       }
     ]
   },
+  {
+  "video": {
+    "sites": [
+      {
+        "key": "olehdtv",
+        "name": "欧乐影院",
+        "type": 3,
+        "api": "/spider/video/olehdtv/3"
+      }
+    ]
+  }
+},
   // 基本配置
   likes: true,
   suffix: true,
