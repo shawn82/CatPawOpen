@@ -1,12 +1,29 @@
 // 欧乐影院 CatPawOpen 源
-// 适配 CatPawOpen 协议
+// 路径: nodejs/src/spider/video/olehdtv.js
+
+import req from '../../util/req.js';
+import { load } from 'cheerio';
 
 const host = 'https://www.olehdtv.com';
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 
+// 封装请求函数
+async function request(url, options = {}) {
+    try {
+        const res = await req(url, {
+            method: options.method || 'get',
+            headers: options.headers || {},
+            ...options
+        });
+        return res.data || '';
+    } catch (error) {
+        console.error('Request error:', error.message);
+        return '';
+    }
+}
+
 // 初始化
 async function init(inReq, _outResp) {
-    // 站源初始化
     return {};
 }
 
@@ -21,17 +38,16 @@ async function home(inReq, _outResp) {
     
     const filters = generateFilters();
     
-    return {
+    return JSON.stringify({
         class: classes,
         filters: filters
-    };
+    });
 }
 
 // 分类列表
 async function category(inReq, _outResp) {
     const tid = inReq.body.id;
     const pg = inReq.body.page || 1;
-    const filter = inReq.body.filter;
     const extend = inReq.body.filters || {};
     
     const cateId = extend.cateId || tid;
@@ -50,18 +66,18 @@ async function category(inReq, _outResp) {
         "Accept-Language": "zh-CN,zh;q=0.9"
     };
     
-    const html = await request(url, {method: 'GET', headers: headers});
+    const html = await request(url, {method: 'get', headers: headers});
     const list = extractVideos(html);
     
     // 提取总页数
     const pageMatch = html.match(/>\s*(\d+)\s*<\/a>\s*<a[^>]*>尾页/);
     const pagecount = pageMatch ? parseInt(pageMatch[1]) : 999;
     
-    return {
+    return JSON.stringify({
         page: parseInt(pg),
         pagecount: pagecount,
         list: list
-    };
+    });
 }
 
 // 详情页
@@ -77,72 +93,71 @@ async function detail(inReq, _outResp) {
             "Accept-Language": "zh-CN,zh;q=0.9"
         };
         
-        const html = await request(url, {method: 'GET', headers: headers});
+        const html = await request(url, {method: 'get', headers: headers});
+        if (!html) continue;
+        
+        const $ = load(html);
         
         // 提取标题
-        const title = pdfh(html, '.hd_tit&&Text') || pdfh(html, 'h2.title&&Text') || '';
+        const title = $('.hd_tit').text().trim() || $('h2.title').text().trim() || '';
         
         // 提取图片
-        let pic = pdfh(html, '.content_thumb .lazyload&&data-original') || '';
+        let pic = $('.content_thumb .lazyload').attr('data-original') || '';
         if (pic.startsWith('//')) pic = 'https:' + pic;
         else if (pic.startsWith('/')) pic = host + pic;
         
         // 提取年份、地区、导演、演员
-        const dataLi = pdfa(html, '.content_detail .data');
         let year = '', area = '', director = '', actor = '';
-        
-        dataLi.forEach(li => {
-            const text = pdfh(li, 'Text') || '';
+        $('.content_detail .data').each((i, elem) => {
+            const text = $(elem).text();
             if (text.includes('年份：')) {
-                year = pdfh(li, 'a&&Text') || '';
+                year = $(elem).find('a').text().trim();
             } else if (text.includes('地区：')) {
-                area = pdfh(li, 'a&&Text') || '';
+                area = $(elem).find('a').text().trim();
             } else if (text.includes('导演：')) {
-                director = pdfa(li, 'a').map(a => pdfh(a, 'Text')).filter(Boolean).join(' / ');
+                const dirs = [];
+                $(elem).find('a').each((j, a) => dirs.push($(a).text().trim()));
+                director = dirs.join(' / ');
             } else if (text.includes('主演：')) {
-                actor = pdfa(li, 'a').map(a => pdfh(a, 'Text')).filter(Boolean).join(' / ');
+                const acts = [];
+                $(elem).find('a').each((j, a) => acts.push($(a).text().trim()));
+                actor = acts.join(' / ');
             }
         });
         
         // 提取简介
-        const content = pdfh(html, '.content_desc.context span&&Text') || '暂无简介';
+        const content = $('.content_desc.context span').text().trim() || '暂无简介';
         
         // 提取播放源
-        const tabs = pdfa(html, '#NumTab a');
         const playFromArr = [];
         const playUrlArr = [];
         
-        const playlistBox = pdfa(html, '#playlistbox');
+        const tabs = $('#NumTab a').toArray();
+        const playlists = $('#playlistbox .content_playlist').toArray();
         
         tabs.forEach((tab, idx) => {
-            const tabName = (pdfh(tab, 'Text') || '').replace(/\s+/g, ' ').trim();
+            const tabName = $(tab).text().replace(/\s+/g, ' ').trim();
             
-            if (playlistBox.length > 0) {
-                const playlists = pdfa(playlistBox[0], '.content_playlist');
-                
-                if (playlists.length > idx) {
-                    const episodes = pdfa(playlists[idx], 'li a').map(a => {
-                        const name = pdfh(a, 'Text') || '播放';
-                        const href = pdfh(a, 'a&&href') || '';
-                        
-                        // 过滤包含 play_vip 的链接
-                        if (href.includes('play_vip')) {
-                            return null;
-                        }
-                        
-                        // 匹配格式: /play/id/78583/sid/1/nid/1.html
-                        const match = href.match(/\/play\/id\/(\d+)\/sid\/(\d+)\/nid\/(\d+)/);
-                        if (match) {
-                            const [_, vid, sid, nid] = match;
-                            return `${name}$${vid}/${sid}/${nid}`;
-                        }
-                        return null;
-                    }).filter(Boolean);
+            if (idx < playlists.length) {
+                const episodes = [];
+                $(playlists[idx]).find('li a').each((j, a) => {
+                    const name = $(a).text().trim() || '播放';
+                    const href = $(a).attr('href') || '';
                     
-                    if (episodes.length > 0) {
-                        playFromArr.push(tabName);
-                        playUrlArr.push(episodes.join('#'));
+                    // 过滤包含 play_vip 的链接
+                    if (href.includes('play_vip')) return;
+                    
+                    // 匹配格式: /play/id/78583/sid/1/nid/1.html
+                    const match = href.match(/\/play\/id\/(\d+)\/sid\/(\d+)\/nid\/(\d+)/);
+                    if (match) {
+                        const [_, vid, sid, nid] = match;
+                        episodes.push(`${name}$${vid}/${sid}/${nid}`);
                     }
+                });
+                
+                if (episodes.length > 0) {
+                    playFromArr.push(tabName);
+                    playUrlArr.push(episodes.join('#'));
                 }
             }
         });
@@ -178,7 +193,7 @@ async function search(inReq, _outResp) {
         "Accept-Language": "zh-CN,zh;q=0.9"
     };
     
-    const html = await request(url, {method: 'GET', headers: headers});
+    const html = await request(url, {method: 'get', headers: headers});
     const list = extractVideos(html);
     
     return {
@@ -190,7 +205,6 @@ async function search(inReq, _outResp) {
 
 // 播放
 async function play(inReq, _outResp) {
-    const flag = inReq.body.flag;
     const id = inReq.body.id;
     
     // id 格式: 78583/1/1 (vid/sid/nid)
@@ -203,15 +217,12 @@ async function play(inReq, _outResp) {
         "Accept-Language": "zh-CN,zh;q=0.9"
     };
     
-    const html = await request(url, {method: 'GET', headers: headers});
+    const html = await request(url, {method: 'get', headers: headers});
     
     // 提取播放数据: var player_aaaa={"url":"...","encrypt":"..."}
     const match = html.match(/var\s+player_\w+\s*=\s*(\{[^}]+\})/);
     if (!match) {
-        return {
-            url: url,
-            header: headers
-        };
+        return {url: url, header: headers};
     }
     
     try {
@@ -222,12 +233,13 @@ async function play(inReq, _outResp) {
         if (playerData.encrypt === "1") {
             playUrl = decodeURIComponent(playUrl);
         } else if (playerData.encrypt === "2") {
-            playUrl = decodeURIComponent(atob(playUrl));
+            playUrl = decodeURIComponent(Buffer.from(playUrl, 'base64').toString());
         }
         
         // 检查是否是直链
         if (/\.m3u8|\.mp4/i.test(playUrl)) {
             return {
+                parse: 0,
                 url: playUrl,
                 header: headers
             };
@@ -237,6 +249,7 @@ async function play(inReq, _outResp) {
     }
     
     return {
+        parse: 0,
         url: url,
         header: headers
     };
@@ -246,22 +259,28 @@ async function play(inReq, _outResp) {
 function extractVideos(html) {
     if (!html) return [];
     
-    return pdfa(html, '.vodlist li').map(it => {
-        const href = pdfh(it, 'a&&href') || '';
+    const $ = load(html);
+    const videos = [];
+    
+    $('.vodlist li').each((i, elem) => {
+        const $elem = $(elem);
+        const href = $elem.find('a').attr('href') || '';
         const id = href.match(/\/(\d+)\.html$/)?.[1];
-        const name = pdfh(it, 'a&&title') || "";
-        const pic = pdfh(it, '.lazyload&&data-original') || "";
-        const remarks = pdfh(it, '.pic_text&&Text') || "";
+        const name = $elem.find('a').attr('title') || '';
+        const pic = $elem.find('.lazyload').attr('data-original') || '';
+        const remarks = $elem.find('.pic_text').text().trim() || '';
         
-        if (!id || !name) return null;
+        if (!id || !name) return;
         
-        return {
+        videos.push({
             vod_id: id,
             vod_name: name.trim(),
             vod_pic: pic.startsWith('//') ? 'https:' + pic : (pic.startsWith('/') ? host + pic : pic),
-            vod_remarks: remarks.trim()
-        };
-    }).filter(Boolean);
+            vod_remarks: remarks
+        });
+    });
+    
+    return videos;
 }
 
 // 生成筛选器
@@ -350,7 +369,7 @@ function generateFilters() {
 // 导出模块
 export default {
     meta: {
-        key: 'olehd',
+        key: 'olehdtv',
         name: '欧乐影院',
         type: 3,
     },
