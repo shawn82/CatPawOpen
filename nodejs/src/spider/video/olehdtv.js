@@ -10,12 +10,26 @@ const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
 // 封装请求函数
 async function request(url, options = {}) {
     try {
+        console.log('Requesting URL:', url);
         const res = await req(url, {
             method: options.method || 'get',
-            headers: options.headers || {},
+            headers: {
+                "User-Agent": UA,
+                "Referer": host + "/",
+                "Accept-Language": "zh-CN,zh;q=0.9",
+                ...options.headers
+            },
             ...options
         });
-        return res.data || '';
+        
+        // 检查响应
+        if (!res || !res.data) {
+            console.error('No response data');
+            return '';
+        }
+        
+        console.log('Response received, length:', res.data.length);
+        return res.data;
     } catch (error) {
         console.error('Request error:', error.message);
         return '';
@@ -46,38 +60,60 @@ async function home(inReq, _outResp) {
 
 // 分类列表
 async function category(inReq, _outResp) {
-    const tid = inReq.body.id;
-    const pg = inReq.body.page || 1;
-    const extend = inReq.body.filters || {};
-    
-    const cateId = extend.cateId || tid;
-    const area = extend.area || '';
-    const by = extend.by || '/by/time';
-    const lang = extend.lang || '';
-    const letter = extend.letter || '';
-    const year = extend.year || '';
-    
-    // 构建URL
-    const url = `${host}/index.php/vod/show/id/${cateId}${area}${by}${lang}${letter}/page/${pg}${year}.html`;
-    
-    const headers = {
-        "User-Agent": UA,
-        "Referer": host + "/",
-        "Accept-Language": "zh-CN,zh;q=0.9"
-    };
-    
-    const html = await request(url, {method: 'get', headers: headers});
-    const list = extractVideos(html);
-    
-    // 提取总页数
-    const pageMatch = html.match(/>\s*(\d+)\s*<\/a>\s*<a[^>]*>尾页/);
-    const pagecount = pageMatch ? parseInt(pageMatch[1]) : 999;
-    
-    return JSON.stringify({
-        page: parseInt(pg),
-        pagecount: pagecount,
-        list: list
-    });
+    try {
+        const tid = inReq.body.id;
+        const pg = inReq.body.page || 1;
+        const extend = inReq.body.filters || {};
+        
+        const cateId = extend.cateId || tid;
+        const area = extend.area || '';
+        const by = extend.by || '/by/time';
+        const lang = extend.lang || '';
+        const letter = extend.letter || '';
+        const year = extend.year || '';
+        
+        // 构建URL
+        const url = `${host}/index.php/vod/show/id/${cateId}${area}${by}${lang}${letter}/page/${pg}${year}.html`;
+        
+        console.log('Category URL:', url); // 调试日志
+        
+        const headers = {
+            "User-Agent": UA,
+            "Referer": host + "/",
+            "Accept-Language": "zh-CN,zh;q=0.9"
+        };
+        
+        const html = await request(url, {method: 'get', headers: headers});
+        
+        if (!html) {
+            console.error('No HTML content received');
+            return JSON.stringify({
+                page: parseInt(pg),
+                pagecount: 1,
+                list: []
+            });
+        }
+        
+        const list = extractVideos(html);
+        console.log('Extracted videos count:', list.length); // 调试日志
+        
+        // 提取总页数
+        const pageMatch = html.match(/>\s*(\d+)\s*<\/a>\s*<a[^>]*>尾页/);
+        const pagecount = pageMatch ? parseInt(pageMatch[1]) : 999;
+        
+        return JSON.stringify({
+            page: parseInt(pg),
+            pagecount: pagecount,
+            list: list
+        });
+    } catch (error) {
+        console.error('Category error:', error);
+        return JSON.stringify({
+            page: 1,
+            pagecount: 1,
+            list: []
+        });
+    }
 }
 
 // 详情页
@@ -257,30 +293,73 @@ async function play(inReq, _outResp) {
 
 // 辅助函数：提取视频列表
 function extractVideos(html) {
-    if (!html) return [];
+    if (!html) {
+        console.log('extractVideos: No HTML provided');
+        return [];
+    }
     
-    const $ = load(html);
-    const videos = [];
-    
-    $('.vodlist li').each((i, elem) => {
-        const $elem = $(elem);
-        const href = $elem.find('a').attr('href') || '';
-        const id = href.match(/\/(\d+)\.html$/)?.[1];
-        const name = $elem.find('a').attr('title') || '';
-        const pic = $elem.find('.lazyload').attr('data-original') || '';
-        const remarks = $elem.find('.pic_text').text().trim() || '';
+    try {
+        const $ = load(html);
+        const videos = [];
         
-        if (!id || !name) return;
+        // 尝试多种选择器
+        const vodItems = $('.vodlist li');
+        console.log('Found vodlist items:', vodItems.length);
         
-        videos.push({
-            vod_id: id,
-            vod_name: name.trim(),
-            vod_pic: pic.startsWith('//') ? 'https:' + pic : (pic.startsWith('/') ? host + pic : pic),
-            vod_remarks: remarks
-        });
-    });
-    
-    return videos;
+        if (vodItems.length === 0) {
+            // 尝试其他可能的选择器
+            const altItems = $('.vodlist_wi li, .module-item, .stui-vodlist li');
+            console.log('Trying alternative selector, found:', altItems.length);
+            
+            altItems.each((i, elem) => {
+                const $elem = $(elem);
+                const $link = $elem.find('a').first();
+                const href = $link.attr('href') || '';
+                const id = href.match(/\/(\d+)\.html$/)?.[1];
+                const name = $link.attr('title') || $link.text().trim() || '';
+                const pic = $elem.find('img').attr('data-original') || 
+                           $elem.find('img').attr('data-src') || 
+                           $elem.find('img').attr('src') || '';
+                const remarks = $elem.find('.pic_text, .module-item-note, .pic-text').text().trim() || '';
+                
+                if (id && name) {
+                    videos.push({
+                        vod_id: id,
+                        vod_name: name.trim(),
+                        vod_pic: pic.startsWith('//') ? 'https:' + pic : (pic.startsWith('/') ? host + pic : pic),
+                        vod_remarks: remarks
+                    });
+                }
+            });
+        } else {
+            vodItems.each((i, elem) => {
+                const $elem = $(elem);
+                const $link = $elem.find('a').first();
+                const href = $link.attr('href') || '';
+                const id = href.match(/\/(\d+)\.html$/)?.[1];
+                const name = $link.attr('title') || '';
+                const pic = $elem.find('.lazyload, img').attr('data-original') || 
+                           $elem.find('.lazyload, img').attr('data-src') || 
+                           $elem.find('img').attr('src') || '';
+                const remarks = $elem.find('.pic_text').text().trim() || '';
+                
+                if (id && name) {
+                    videos.push({
+                        vod_id: id,
+                        vod_name: name.trim(),
+                        vod_pic: pic.startsWith('//') ? 'https:' + pic : (pic.startsWith('/') ? host + pic : pic),
+                        vod_remarks: remarks
+                    });
+                }
+            });
+        }
+        
+        console.log('Extracted videos:', videos.length);
+        return videos;
+    } catch (error) {
+        console.error('extractVideos error:', error);
+        return [];
+    }
 }
 
 // 生成筛选器
